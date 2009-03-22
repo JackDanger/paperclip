@@ -33,6 +33,34 @@ class ValidateAttachmentSizeMatcherTest < Test::Unit::TestCase
       end
     end
 
+    context "of maximum size" do
+      setup{ @matcher = self.class.validate_attachment_size(:avatar).less_than(128) }
+
+      should "reject a class with a validation that's too high" do
+        @dummy_class.validates_attachment_size :avatar, :in => 64..128
+        assert_rejects @matcher, @dummy_class
+      end
+
+      should "accept a class with a validation that matches" do
+        @dummy_class.validates_attachment_size :avatar, :in => 0..128
+        assert_accepts @matcher, @dummy_class
+      end
+    end
+
+    context "of minimum size" do
+      setup{ @matcher = self.class.validate_attachment_size(:avatar).greater_than(4096) }
+
+      should "reject a class with a validation that's too low" do
+        @dummy_class.validates_attachment_size :avatar, :in => 0..1024
+        assert_rejects @matcher, @dummy_class
+      end
+
+      should "accept a class with a validation that matches" do
+        @dummy_class.validates_attachment_size :avatar, :in => 4096..8192
+        assert_accepts @matcher, @dummy_class
+      end
+    end
+
     context "validates_attachment_size with infinite range" do
       setup{ @matcher = self.class.validate_attachment_size(:avatar) }
 
